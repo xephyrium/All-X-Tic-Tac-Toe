@@ -1,24 +1,60 @@
 package x;
 
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 
 public class TicTacToe {
 	
-	private JFrame frame;
+	static TicTacToe ttt;
+	JFrame frame;
 	
-	private JButton b1b1,b1b2,b1b3,b1b4,b1b5,b1b6,b1b7,b1b8,b1b9, b2b1,b2b2,b2b3,b2b4,b2b5,b2b6,b2b7,b2b8,b2b9, b3b1,b3b2,b3b3,b3b4,b3b5,b3b6,b3b7,b3b8,b3b9, b4b1,b4b2,b4b3,b4b4,b4b5,b4b6,b4b7,b4b8,b4b9,
+	XButton b1b1,b1b2,b1b3,b1b4,b1b5,b1b6,b1b7,b1b8,b1b9, b2b1,b2b2,b2b3,b2b4,b2b5,b2b6,b2b7,b2b8,b2b9, b3b1,b3b2,b3b3,b3b4,b3b5,b3b6,b3b7,b3b8,b3b9, b4b1,b4b2,b4b3,b4b4,b4b5,b4b6,b4b7,b4b8,b4b9,
 			b5b1,b5b2,b5b3,b5b4,b5b5,b5b6,b5b7,b5b8,b5b9, b6b1,b6b2,b6b3,b6b4,b6b5,b6b6,b6b7,b6b8,b6b9, b7b1,b7b2,b7b3,b7b4,b7b5,b7b6,b7b7,b7b8,b7b9, b8b1,b8b2,b8b3,b8b4,b8b5,b8b6,b8b7,b8b8,b8b9,
 			b9b1,b9b2,b9b3,b9b4,b9b5,b9b6,b9b7,b9b8,b9b9;
-	private boolean[][] blackouts = { {false, false, false},{false, false, false},{false, false, false} };
+	boolean[][] blackouts = { {false, false, false},{false, false, false},{false, false, false} };
 	
-	private JLabel turnLabel;
-	private Color winner;
-	private int turnNum = 1;
+	XButton[] buttons = new XButton[81];
+	XButton[] board1 = new XButton[9];
+	XButton[] board2 = new XButton[9];
+	XButton[] board3 = new XButton[9];
+	XButton[] board4 = new XButton[9];
+	XButton[] board5 = new XButton[9];
+	XButton[] board6 = new XButton[9];
+	XButton[] board7 = new XButton[9];
+	XButton[] board8 = new XButton[9];
+	XButton[] board9 = new XButton[9];
+	XButton[][] boards = new XButton[9][9];
 	
-	private String rulesText = "This game is a modified version of Tic Tac Toe. The variation is that both players are X, and there are multiple boards.\n\nEvery other turn a player will take turns clicking on the white boxes to place their X. Because both players are X it does not matter who placed which X, just that an X is placed there.\n\nOnce a board gets three in a row, that board is considered dead, and no more X's can be played in it.\nOnce three boards in a row are dead, the player who made the final move that killed the last board loses.\n\nThe object of the game is to not kill three boards in a row.";
+	boolean blackout_b1 = false;
+	boolean blackout_b2 = false;
+	boolean blackout_b3 = false;
+	boolean blackout_b4 = false;
+	boolean blackout_b5 = false;
+	boolean blackout_b6 = false;
+	boolean blackout_b7 = false;
+	boolean blackout_b8 = false;
+	boolean blackout_b9 = false;
+	
+	JLabel turnLabel;
+	Color winner;
+	int turnNum = 1;
+	boolean gameWon = false;
+	
+	String rulesText = "This game is a modified version of Tic Tac Toe. The variation is that both players are X, and there are multiple boards.\n\nEvery other turn a player will take turns clicking on the white boxes to place their X. Because both players are X it does not matter who placed which X, just that an X is placed there.\n\nOnce a board gets three in a row, that board is considered dead, and no more X's can be played in it.\nOnce three boards in a row are dead, the player who made the final move that killed the last board loses.\n\nThe object of the game is to not kill three boards in a row.";
 	
 	public static void main(String[] args) {
 		
@@ -26,8 +62,10 @@ public class TicTacToe {
 	}
 	public TicTacToe() {
 		
+		ttt = this;
+		
 		frame = new JFrame();
-		frame.setTitle("Tic Tac Toe          -          All X's          -          9 boards          -          Move 1");
+		frame.setTitle("All X's Tic Tac Toe - Move 1");
 		frame.setSize(1000, 1000);
 		frame.setResizable(false);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -58,897 +96,110 @@ public class TicTacToe {
 		turnLabel = new JLabel("<html><font color=\"blue\">Player 1's turn</font></html>");
 		turnLabel.setFont(new Font("Consolas", Font.BOLD, 64));
 		
-		b1b1 = new JButton("X");
-		b1b1.setForeground(Color.WHITE);
-		b1b1.setBackground(Color.WHITE);
-		b1b1.setFocusPainted(false);
-		b1b1.setFont(new Font("Consolas", Font.BOLD, 64));
-		b1b1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b1b1.setEnabled(false);
-				check(1);
-			}
-		});
-		b1b2 = new JButton("X");
-		b1b2.setForeground(Color.WHITE);
-		b1b2.setBackground(Color.WHITE);
-		b1b2.setFocusPainted(false);
-		b1b2.setFont(new Font("Consolas", Font.BOLD, 64));
-		b1b2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b1b2.setEnabled(false);
-				check(1);
-			}
-		});
-		b1b3 = new JButton("X");
-		b1b3.setForeground(Color.WHITE);
-		b1b3.setBackground(Color.WHITE);
-		b1b3.setFocusPainted(false);
-		b1b3.setFont(new Font("Consolas", Font.BOLD, 64));
-		b1b3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b1b3.setEnabled(false);
-				check(1);
-			}
-		});
-		b1b4 = new JButton("X");
-		b1b4.setForeground(Color.WHITE);
-		b1b4.setBackground(Color.WHITE);
-		b1b4.setFocusPainted(false);
-		b1b4.setFont(new Font("Consolas", Font.BOLD, 64));
-		b1b4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b1b4.setEnabled(false);
-				check(1);
-			}
-		});
-		b1b5 = new JButton("X");
-		b1b5.setForeground(Color.WHITE);
-		b1b5.setBackground(Color.WHITE);
-		b1b5.setFocusPainted(false);
-		b1b5.setFont(new Font("Consolas", Font.BOLD, 64));
-		b1b5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b1b5.setEnabled(false);
-				check(1);
-			}
-		});
-		b1b6 = new JButton("X");
-		b1b6.setForeground(Color.WHITE);
-		b1b6.setBackground(Color.WHITE);
-		b1b6.setFocusPainted(false);
-		b1b6.setFont(new Font("Consolas", Font.BOLD, 64));
-		b1b6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b1b6.setEnabled(false);
-				check(1);
-			}
-		});
-		b1b7 = new JButton("X");
-		b1b7.setForeground(Color.WHITE);
-		b1b7.setBackground(Color.WHITE);
-		b1b7.setFocusPainted(false);
-		b1b7.setFont(new Font("Consolas", Font.BOLD, 64));
-		b1b7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b1b7.setEnabled(false);
-				check(1);
-			}
-		});
-		b1b8 = new JButton("X");
-		b1b8.setForeground(Color.WHITE);
-		b1b8.setBackground(Color.WHITE);
-		b1b8.setFocusPainted(false);
-		b1b8.setFont(new Font("Consolas", Font.BOLD, 64));
-		b1b8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b1b8.setEnabled(false);
-				check(1);
-			}
-		});
-		b1b9 = new JButton("X");
-		b1b9.setForeground(Color.WHITE);
-		b1b9.setBackground(Color.WHITE);
-		b1b9.setFocusPainted(false);
-		b1b9.setFont(new Font("Consolas", Font.BOLD, 64));
-		b1b9.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b1b9.setEnabled(false);
-				check(1);
-			}
-		});
-		b2b1 = new JButton("X");
-		b2b1.setForeground(Color.WHITE);
-		b2b1.setBackground(Color.WHITE);
-		b2b1.setFocusPainted(false);
-		b2b1.setFont(new Font("Consolas", Font.BOLD, 64));
-		b2b1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b2b1.setEnabled(false);
-				check(2);
-			}
-		});
-		b2b2 = new JButton("X");
-		b2b2.setForeground(Color.WHITE);
-		b2b2.setBackground(Color.WHITE);
-		b2b2.setFocusPainted(false);
-		b2b2.setFont(new Font("Consolas", Font.BOLD, 64));
-		b2b2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b2b2.setEnabled(false);
-				check(2);
-			}
-		});
-		b2b3 = new JButton("X");
-		b2b3.setForeground(Color.WHITE);
-		b2b3.setBackground(Color.WHITE);
-		b2b3.setFocusPainted(false);
-		b2b3.setFont(new Font("Consolas", Font.BOLD, 64));
-		b2b3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b2b3.setEnabled(false);
-				check(2);
-			}
-		});
-		b2b4 = new JButton("X");
-		b2b4.setForeground(Color.WHITE);
-		b2b4.setBackground(Color.WHITE);
-		b2b4.setFocusPainted(false);
-		b2b4.setFont(new Font("Consolas", Font.BOLD, 64));
-		b2b4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b2b4.setEnabled(false);
-				check(2);
-			}
-		});
-		b2b5 = new JButton("X");
-		b2b5.setForeground(Color.WHITE);
-		b2b5.setBackground(Color.WHITE);
-		b2b5.setFocusPainted(false);
-		b2b5.setFont(new Font("Consolas", Font.BOLD, 64));
-		b2b5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b2b5.setEnabled(false);
-				check(2);
-			}
-		});
-		b2b6 = new JButton("X");
-		b2b6.setForeground(Color.WHITE);
-		b2b6.setBackground(Color.WHITE);
-		b2b6.setFocusPainted(false);
-		b2b6.setFont(new Font("Consolas", Font.BOLD, 64));
-		b2b6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b2b6.setEnabled(false);
-				check(2);
-			}
-		});
-		b2b7 = new JButton("X");
-		b2b7.setForeground(Color.WHITE);
-		b2b7.setBackground(Color.WHITE);
-		b2b7.setFocusPainted(false);
-		b2b7.setFont(new Font("Consolas", Font.BOLD, 64));
-		b2b7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b2b7.setEnabled(false);
-				check(2);
-			}
-		});
-		b2b8 = new JButton("X");
-		b2b8.setForeground(Color.WHITE);
-		b2b8.setBackground(Color.WHITE);
-		b2b8.setFocusPainted(false);
-		b2b8.setFont(new Font("Consolas", Font.BOLD, 64));
-		b2b8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b2b8.setEnabled(false);
-				check(2);
-			}
-		});
-		b2b9 = new JButton("X");
-		b2b9.setForeground(Color.WHITE);
-		b2b9.setBackground(Color.WHITE);
-		b2b9.setFocusPainted(false);
-		b2b9.setFont(new Font("Consolas", Font.BOLD, 64));
-		b2b9.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b2b9.setEnabled(false);
-				check(2);
-			}
-		});
-		b3b1 = new JButton("X");
-		b3b1.setForeground(Color.WHITE);
-		b3b1.setBackground(Color.WHITE);
-		b3b1.setFocusPainted(false);
-		b3b1.setFont(new Font("Consolas", Font.BOLD, 64));
-		b3b1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b3b1.setEnabled(false);
-				check(3);
-			}
-		});
-		b3b2 = new JButton("X");
-		b3b2.setForeground(Color.WHITE);
-		b3b2.setBackground(Color.WHITE);
-		b3b2.setFocusPainted(false);
-		b3b2.setFont(new Font("Consolas", Font.BOLD, 64));
-		b3b2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b3b2.setEnabled(false);
-				check(3);
-			}
-		});
-		b3b3 = new JButton("X");
-		b3b3.setForeground(Color.WHITE);
-		b3b3.setBackground(Color.WHITE);
-		b3b3.setFocusPainted(false);
-		b3b3.setFont(new Font("Consolas", Font.BOLD, 64));
-		b3b3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b3b3.setEnabled(false);
-				check(3);
-			}
-		});
-		b3b4 = new JButton("X");
-		b3b4.setForeground(Color.WHITE);
-		b3b4.setBackground(Color.WHITE);
-		b3b4.setFocusPainted(false);
-		b3b4.setFont(new Font("Consolas", Font.BOLD, 64));
-		b3b4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b3b4.setEnabled(false);
-				check(3);
-			}
-		});
-		b3b5 = new JButton("X");
-		b3b5.setForeground(Color.WHITE);
-		b3b5.setBackground(Color.WHITE);
-		b3b5.setFocusPainted(false);
-		b3b5.setFont(new Font("Consolas", Font.BOLD, 64));
-		b3b5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b3b5.setEnabled(false);
-				check(3);
-			}
-		});
-		b3b6 = new JButton("X");
-		b3b6.setForeground(Color.WHITE);
-		b3b6.setBackground(Color.WHITE);
-		b3b6.setFocusPainted(false);
-		b3b6.setFont(new Font("Consolas", Font.BOLD, 64));
-		b3b6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b3b6.setEnabled(false);
-				check(3);
-			}
-		});
-		b3b7 = new JButton("X");
-		b3b7.setForeground(Color.WHITE);
-		b3b7.setBackground(Color.WHITE);
-		b3b7.setFocusPainted(false);
-		b3b7.setFont(new Font("Consolas", Font.BOLD, 64));
-		b3b7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b3b7.setEnabled(false);
-				check(3);
-			}
-		});
-		b3b8 = new JButton("X");
-		b3b8.setForeground(Color.WHITE);
-		b3b8.setBackground(Color.WHITE);
-		b3b8.setFocusPainted(false);
-		b3b8.setFont(new Font("Consolas", Font.BOLD, 64));
-		b3b8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b3b8.setEnabled(false);
-				check(3);
-			}
-		});
-		b3b9 = new JButton("X");
-		b3b9.setForeground(Color.WHITE);
-		b3b9.setBackground(Color.WHITE);
-		b3b9.setFocusPainted(false);
-		b3b9.setFont(new Font("Consolas", Font.BOLD, 64));
-		b3b9.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b3b9.setEnabled(false);
-				check(3);
-			}
-		});
-		b4b1 = new JButton("X");
-		b4b1.setForeground(Color.WHITE);
-		b4b1.setBackground(Color.WHITE);
-		b4b1.setFocusPainted(false);
-		b4b1.setFont(new Font("Consolas", Font.BOLD, 64));
-		b4b1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b4b1.setEnabled(false);
-				check(4);
-			}
-		});
-		b4b2 = new JButton("X");
-		b4b2.setForeground(Color.WHITE);
-		b4b2.setBackground(Color.WHITE);
-		b4b2.setFocusPainted(false);
-		b4b2.setFont(new Font("Consolas", Font.BOLD, 64));
-		b4b2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b4b2.setEnabled(false);
-				check(4);
-			}
-		});
-		b4b3 = new JButton("X");
-		b4b3.setForeground(Color.WHITE);
-		b4b3.setBackground(Color.WHITE);
-		b4b3.setFocusPainted(false);
-		b4b3.setFont(new Font("Consolas", Font.BOLD, 64));
-		b4b3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b4b3.setEnabled(false);
-				check(4);
-			}
-		});
-		b4b4 = new JButton("X");
-		b4b4.setForeground(Color.WHITE);
-		b4b4.setBackground(Color.WHITE);
-		b4b4.setFocusPainted(false);
-		b4b4.setFont(new Font("Consolas", Font.BOLD, 64));
-		b4b4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b4b4.setEnabled(false);
-				check(4);
-			}
-		});
-		b4b5 = new JButton("X");
-		b4b5.setForeground(Color.WHITE);
-		b4b5.setBackground(Color.WHITE);
-		b4b5.setFocusPainted(false);
-		b4b5.setFont(new Font("Consolas", Font.BOLD, 64));
-		b4b5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b4b5.setEnabled(false);
-				check(4);
-			}
-		});
-		b4b6 = new JButton("X");
-		b4b6.setForeground(Color.WHITE);
-		b4b6.setBackground(Color.WHITE);
-		b4b6.setFocusPainted(false);
-		b4b6.setFont(new Font("Consolas", Font.BOLD, 64));
-		b4b6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b4b6.setEnabled(false);
-				check(4);
-			}
-		});
-		b4b7 = new JButton("X");
-		b4b7.setForeground(Color.WHITE);
-		b4b7.setBackground(Color.WHITE);
-		b4b7.setFocusPainted(false);
-		b4b7.setFont(new Font("Consolas", Font.BOLD, 64));
-		b4b7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b4b7.setEnabled(false);
-				check(4);
-			}
-		});
-		b4b8 = new JButton("X");
-		b4b8.setForeground(Color.WHITE);
-		b4b8.setBackground(Color.WHITE);
-		b4b8.setFocusPainted(false);
-		b4b8.setFont(new Font("Consolas", Font.BOLD, 64));
-		b4b8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b4b8.setEnabled(false);
-				check(4);
-			}
-		});
-		b4b9 = new JButton("X");
-		b4b9.setForeground(Color.WHITE);
-		b4b9.setBackground(Color.WHITE);
-		b4b9.setFocusPainted(false);
-		b4b9.setFont(new Font("Consolas", Font.BOLD, 64));
-		b4b9.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b4b9.setEnabled(false);
-				check(4);
-			}
-		});
-		b5b1 = new JButton("X");
-		b5b1.setForeground(Color.WHITE);
-		b5b1.setBackground(Color.WHITE);
-		b5b1.setFocusPainted(false);
-		b5b1.setFont(new Font("Consolas", Font.BOLD, 64));
-		b5b1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b5b1.setEnabled(false);
-				check(5);
-			}
-		});
-		b5b2 = new JButton("X");
-		b5b2.setForeground(Color.WHITE);
-		b5b2.setBackground(Color.WHITE);
-		b5b2.setFocusPainted(false);
-		b5b2.setFont(new Font("Consolas", Font.BOLD, 64));
-		b5b2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b5b2.setEnabled(false);
-				check(5);
-			}
-		});
-		b5b3 = new JButton("X");
-		b5b3.setForeground(Color.WHITE);
-		b5b3.setBackground(Color.WHITE);
-		b5b3.setFocusPainted(false);
-		b5b3.setFont(new Font("Consolas", Font.BOLD, 64));
-		b5b3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b5b3.setEnabled(false);
-				check(5);
-			}
-		});
-		b5b4 = new JButton("X");
-		b5b4.setForeground(Color.WHITE);
-		b5b4.setBackground(Color.WHITE);
-		b5b4.setFocusPainted(false);
-		b5b4.setFont(new Font("Consolas", Font.BOLD, 64));
-		b5b4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b5b4.setEnabled(false);
-				check(5);
-			}
-		});
-		b5b5 = new JButton("X");
-		b5b5.setForeground(Color.WHITE);
-		b5b5.setBackground(Color.WHITE);
-		b5b5.setFocusPainted(false);
-		b5b5.setFont(new Font("Consolas", Font.BOLD, 64));
-		b5b5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b5b5.setEnabled(false);
-				check(5);
-			}
-		});
-		b5b6 = new JButton("X");
-		b5b6.setForeground(Color.WHITE);
-		b5b6.setBackground(Color.WHITE);
-		b5b6.setFocusPainted(false);
-		b5b6.setFont(new Font("Consolas", Font.BOLD, 64));
-		b5b6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b5b6.setEnabled(false);
-				check(5);
-			}
-		});
-		b5b7 = new JButton("X");
-		b5b7.setForeground(Color.WHITE);
-		b5b7.setBackground(Color.WHITE);
-		b5b7.setFocusPainted(false);
-		b5b7.setFont(new Font("Consolas", Font.BOLD, 64));
-		b5b7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b5b7.setEnabled(false);
-				check(5);
-			}
-		});
-		b5b8 = new JButton("X");
-		b5b8.setForeground(Color.WHITE);
-		b5b8.setBackground(Color.WHITE);
-		b5b8.setFocusPainted(false);
-		b5b8.setFont(new Font("Consolas", Font.BOLD, 64));
-		b5b8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b5b8.setEnabled(false);
-				check(5);
-			}
-		});
-		b5b9 = new JButton("X");
-		b5b9.setForeground(Color.WHITE);
-		b5b9.setBackground(Color.WHITE);
-		b5b9.setFocusPainted(false);
-		b5b9.setFont(new Font("Consolas", Font.BOLD, 64));
-		b5b9.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b5b9.setEnabled(false);
-				check(5);
-			}
-		});
-		b6b1 = new JButton("X");
-		b6b1.setForeground(Color.WHITE);
-		b6b1.setBackground(Color.WHITE);
-		b6b1.setFocusPainted(false);
-		b6b1.setFont(new Font("Consolas", Font.BOLD, 64));
-		b6b1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b6b1.setEnabled(false);
-				check(6);
-			}
-		});
-		b6b2 = new JButton("X");
-		b6b2.setForeground(Color.WHITE);
-		b6b2.setBackground(Color.WHITE);
-		b6b2.setFocusPainted(false);
-		b6b2.setFont(new Font("Consolas", Font.BOLD, 64));
-		b6b2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b6b2.setEnabled(false);
-				check(6);
-			}
-		});
-		b6b3 = new JButton("X");
-		b6b3.setForeground(Color.WHITE);
-		b6b3.setBackground(Color.WHITE);
-		b6b3.setFocusPainted(false);
-		b6b3.setFont(new Font("Consolas", Font.BOLD, 64));
-		b6b3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b6b3.setEnabled(false);
-				check(6);
-			}
-		});
-		b6b4 = new JButton("X");
-		b6b4.setForeground(Color.WHITE);
-		b6b4.setBackground(Color.WHITE);
-		b6b4.setFocusPainted(false);
-		b6b4.setFont(new Font("Consolas", Font.BOLD, 64));
-		b6b4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b6b4.setEnabled(false);
-				check(6);
-			}
-		});
-		b6b5 = new JButton("X");
-		b6b5.setForeground(Color.WHITE);
-		b6b5.setBackground(Color.WHITE);
-		b6b5.setFocusPainted(false);
-		b6b5.setFont(new Font("Consolas", Font.BOLD, 64));
-		b6b5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b6b5.setEnabled(false);
-				check(6);
-			}
-		});
-		b6b6 = new JButton("X");
-		b6b6.setForeground(Color.WHITE);
-		b6b6.setBackground(Color.WHITE);
-		b6b6.setFocusPainted(false);
-		b6b6.setFont(new Font("Consolas", Font.BOLD, 64));
-		b6b6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b6b6.setEnabled(false);
-				check(6);
-			}
-		});
-		b6b7 = new JButton("X");
-		b6b7.setForeground(Color.WHITE);
-		b6b7.setBackground(Color.WHITE);
-		b6b7.setFocusPainted(false);
-		b6b7.setFont(new Font("Consolas", Font.BOLD, 64));
-		b6b7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b6b7.setEnabled(false);
-				check(6);
-			}
-		});
-		b6b8 = new JButton("X");
-		b6b8.setForeground(Color.WHITE);
-		b6b8.setBackground(Color.WHITE);
-		b6b8.setFocusPainted(false);
-		b6b8.setFont(new Font("Consolas", Font.BOLD, 64));
-		b6b8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b6b8.setEnabled(false);
-				check(6);
-			}
-		});
-		b6b9 = new JButton("X");
-		b6b9.setForeground(Color.WHITE);
-		b6b9.setBackground(Color.WHITE);
-		b6b9.setFocusPainted(false);
-		b6b9.setFont(new Font("Consolas", Font.BOLD, 64));
-		b6b9.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b6b9.setEnabled(false);
-				check(6);
-			}
-		});
-		b7b1 = new JButton("X");
-		b7b1.setForeground(Color.WHITE);
-		b7b1.setBackground(Color.WHITE);
-		b7b1.setFocusPainted(false);
-		b7b1.setFont(new Font("Consolas", Font.BOLD, 64));
-		b7b1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b7b1.setEnabled(false);
-				check(7);
-			}
-		});
-		b7b2 = new JButton("X");
-		b7b2.setForeground(Color.WHITE);
-		b7b2.setBackground(Color.WHITE);
-		b7b2.setFocusPainted(false);
-		b7b2.setFont(new Font("Consolas", Font.BOLD, 64));
-		b7b2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b7b2.setEnabled(false);
-				check(7);
-			}
-		});
-		b7b3 = new JButton("X");
-		b7b3.setForeground(Color.WHITE);
-		b7b3.setBackground(Color.WHITE);
-		b7b3.setFocusPainted(false);
-		b7b3.setFont(new Font("Consolas", Font.BOLD, 64));
-		b7b3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b7b3.setEnabled(false);
-				check(7);
-			}
-		});
-		b7b4 = new JButton("X");
-		b7b4.setForeground(Color.WHITE);
-		b7b4.setBackground(Color.WHITE);
-		b7b4.setFocusPainted(false);
-		b7b4.setFont(new Font("Consolas", Font.BOLD, 64));
-		b7b4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b7b4.setEnabled(false);
-				check(7);
-			}
-		});
-		b7b5 = new JButton("X");
-		b7b5.setForeground(Color.WHITE);
-		b7b5.setBackground(Color.WHITE);
-		b7b5.setFocusPainted(false);
-		b7b5.setFont(new Font("Consolas", Font.BOLD, 64));
-		b7b5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b7b5.setEnabled(false);
-				check(7);
-			}
-		});
-		b7b6 = new JButton("X");
-		b7b6.setForeground(Color.WHITE);
-		b7b6.setBackground(Color.WHITE);
-		b7b6.setFocusPainted(false);
-		b7b6.setFont(new Font("Consolas", Font.BOLD, 64));
-		b7b6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b7b6.setEnabled(false);
-				check(7);
-			}
-		});
-		b7b7 = new JButton("X");
-		b7b7.setForeground(Color.WHITE);
-		b7b7.setBackground(Color.WHITE);
-		b7b7.setFocusPainted(false);
-		b7b7.setFont(new Font("Consolas", Font.BOLD, 64));
-		b7b7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b7b7.setEnabled(false);
-				check(7);
-			}
-		});
-		b7b8 = new JButton("X");
-		b7b8.setForeground(Color.WHITE);
-		b7b8.setBackground(Color.WHITE);
-		b7b8.setFocusPainted(false);
-		b7b8.setFont(new Font("Consolas", Font.BOLD, 64));
-		b7b8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b7b8.setEnabled(false);
-				check(7);
-			}
-		});
-		b7b9 = new JButton("X");
-		b7b9.setForeground(Color.WHITE);
-		b7b9.setBackground(Color.WHITE);
-		b7b9.setFocusPainted(false);
-		b7b9.setFont(new Font("Consolas", Font.BOLD, 64));
-		b7b9.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b7b9.setEnabled(false);
-				check(7);
-			}
-		});
-		b8b1 = new JButton("X");
-		b8b1.setForeground(Color.WHITE);
-		b8b1.setBackground(Color.WHITE);
-		b8b1.setFocusPainted(false);
-		b8b1.setFont(new Font("Consolas", Font.BOLD, 64));
-		b8b1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b8b1.setEnabled(false);
-				check(8);
-			}
-		});
-		b8b2 = new JButton("X");
-		b8b2.setForeground(Color.WHITE);
-		b8b2.setBackground(Color.WHITE);
-		b8b2.setFocusPainted(false);
-		b8b2.setFont(new Font("Consolas", Font.BOLD, 64));
-		b8b2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b8b2.setEnabled(false);
-				check(8);
-			}
-		});
-		b8b3 = new JButton("X");
-		b8b3.setForeground(Color.WHITE);
-		b8b3.setBackground(Color.WHITE);
-		b8b3.setFocusPainted(false);
-		b8b3.setFont(new Font("Consolas", Font.BOLD, 64));
-		b8b3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b8b3.setEnabled(false);
-				check(8);
-			}
-		});
-		b8b4 = new JButton("X");
-		b8b4.setForeground(Color.WHITE);
-		b8b4.setBackground(Color.WHITE);
-		b8b4.setFocusPainted(false);
-		b8b4.setFont(new Font("Consolas", Font.BOLD, 64));
-		b8b4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b8b4.setEnabled(false);
-				check(8);
-			}
-		});
-		b8b5 = new JButton("X");
-		b8b5.setForeground(Color.WHITE);
-		b8b5.setBackground(Color.WHITE);
-		b8b5.setFocusPainted(false);
-		b8b5.setFont(new Font("Consolas", Font.BOLD, 64));
-		b8b5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b8b5.setEnabled(false);
-				check(8);
-			}
-		});
-		b8b6 = new JButton("X");
-		b8b6.setForeground(Color.WHITE);
-		b8b6.setBackground(Color.WHITE);
-		b8b6.setFocusPainted(false);
-		b8b6.setFont(new Font("Consolas", Font.BOLD, 64));
-		b8b6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b8b6.setEnabled(false);
-				check(8);
-			}
-		});
-		b8b7 = new JButton("X");
-		b8b7.setForeground(Color.WHITE);
-		b8b7.setBackground(Color.WHITE);
-		b8b7.setFocusPainted(false);
-		b8b7.setFont(new Font("Consolas", Font.BOLD, 64));
-		b8b7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b8b7.setEnabled(false);
-				check(8);
-			}
-		});
-		b8b8 = new JButton("X");
-		b8b8.setForeground(Color.WHITE);
-		b8b8.setBackground(Color.WHITE);
-		b8b8.setFocusPainted(false);
-		b8b8.setFont(new Font("Consolas", Font.BOLD, 64));
-		b8b8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b8b8.setEnabled(false);
-				check(8);
-			}
-		});
-		b8b9 = new JButton("X");
-		b8b9.setForeground(Color.WHITE);
-		b8b9.setBackground(Color.WHITE);
-		b8b9.setFocusPainted(false);
-		b8b9.setFont(new Font("Consolas", Font.BOLD, 64));
-		b8b9.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b8b9.setEnabled(false);
-				check(8);
-			}
-		});
-		b9b1 = new JButton("X");
-		b9b1.setForeground(Color.WHITE);
-		b9b1.setBackground(Color.WHITE);
-		b9b1.setFocusPainted(false);
-		b9b1.setFont(new Font("Consolas", Font.BOLD, 64));
-		b9b1.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b9b1.setEnabled(false);
-				check(9);
-			}
-		});
-		b9b2 = new JButton("X");
-		b9b2.setForeground(Color.WHITE);
-		b9b2.setBackground(Color.WHITE);
-		b9b2.setFocusPainted(false);
-		b9b2.setFont(new Font("Consolas", Font.BOLD, 64));
-		b9b2.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b9b2.setEnabled(false);
-				check(9);
-			}
-		});
-		b9b3 = new JButton("X");
-		b9b3.setForeground(Color.WHITE);
-		b9b3.setBackground(Color.WHITE);
-		b9b3.setFocusPainted(false);
-		b9b3.setFont(new Font("Consolas", Font.BOLD, 64));
-		b9b3.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b9b3.setEnabled(false);
-				check(9);
-			}
-		});
-		b9b4 = new JButton("X");
-		b9b4.setForeground(Color.WHITE);
-		b9b4.setBackground(Color.WHITE);
-		b9b4.setFocusPainted(false);
-		b9b4.setFont(new Font("Consolas", Font.BOLD, 64));
-		b9b4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b9b4.setEnabled(false);
-				check(9);
-			}
-		});
-		b9b5 = new JButton("X");
-		b9b5.setForeground(Color.WHITE);
-		b9b5.setBackground(Color.WHITE);
-		b9b5.setFocusPainted(false);
-		b9b5.setFont(new Font("Consolas", Font.BOLD, 64));
-		b9b5.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b9b5.setEnabled(false);
-				check(9);
-			}
-		});
-		b9b6 = new JButton("X");
-		b9b6.setForeground(Color.WHITE);
-		b9b6.setBackground(Color.WHITE);
-		b9b6.setFocusPainted(false);
-		b9b6.setFont(new Font("Consolas", Font.BOLD, 64));
-		b9b6.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b9b6.setEnabled(false);
-				check(9);
-			}
-		});
-		b9b7 = new JButton("X");
-		b9b7.setForeground(Color.WHITE);
-		b9b7.setBackground(Color.WHITE);
-		b9b7.setFocusPainted(false);
-		b9b7.setFont(new Font("Consolas", Font.BOLD, 64));
-		b9b7.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b9b7.setEnabled(false);
-				check(9);
-			}
-		});
-		b9b8 = new JButton("X");
-		b9b8.setForeground(Color.WHITE);
-		b9b8.setBackground(Color.WHITE);
-		b9b8.setFocusPainted(false);
-		b9b8.setFont(new Font("Consolas", Font.BOLD, 64));
-		b9b8.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b9b8.setEnabled(false);
-				check(9);
-			}
-		});
-		b9b9 = new JButton("X");
-		b9b9.setForeground(Color.WHITE);
-		b9b9.setBackground(Color.WHITE);
-		b9b9.setFocusPainted(false);
-		b9b9.setFont(new Font("Consolas", Font.BOLD, 64));
-		b9b9.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				b9b9.setEnabled(false);
-				check(9);
-			}
-		});
+		b1b1 = new XButton();b1b1.init();b1b1.setMain(ttt);
+		b1b2 = new XButton();b1b2.init();b1b2.setMain(ttt);
+		b1b3 = new XButton();b1b3.init();b1b3.setMain(ttt);
+		b1b4 = new XButton();b1b4.init();b1b4.setMain(ttt);
+		b1b5 = new XButton();b1b5.init();b1b5.setMain(ttt);
+		b1b6 = new XButton();b1b6.init();b1b6.setMain(ttt);
+		b1b7 = new XButton();b1b7.init();b1b7.setMain(ttt);
+		b1b8 = new XButton();b1b8.init();b1b8.setMain(ttt);
+		b1b9 = new XButton();b1b9.init();b1b9.setMain(ttt);
+		
+		b2b1 = new XButton();b2b1.init();b2b1.setMain(ttt);
+		b2b2 = new XButton();b2b2.init();b2b2.setMain(ttt);
+		b2b3 = new XButton();b2b3.init();b2b3.setMain(ttt);
+		b2b4 = new XButton();b2b4.init();b2b4.setMain(ttt);
+		b2b5 = new XButton();b2b5.init();b2b5.setMain(ttt);
+		b2b6 = new XButton();b2b6.init();b2b6.setMain(ttt);
+		b2b7 = new XButton();b2b7.init();b2b7.setMain(ttt);
+		b2b8 = new XButton();b2b8.init();b2b8.setMain(ttt);
+		b2b9 = new XButton();b2b9.init();b2b9.setMain(ttt);
+
+		b3b1 = new XButton();b3b1.init();b3b1.setMain(ttt);
+		b3b2 = new XButton();b3b2.init();b3b2.setMain(ttt);
+		b3b3 = new XButton();b3b3.init();b3b3.setMain(ttt);
+		b3b4 = new XButton();b3b4.init();b3b4.setMain(ttt);
+		b3b5 = new XButton();b3b5.init();b3b5.setMain(ttt);
+		b3b6 = new XButton();b3b6.init();b3b6.setMain(ttt);
+		b3b7 = new XButton();b3b7.init();b3b7.setMain(ttt);
+		b3b8 = new XButton();b3b8.init();b3b8.setMain(ttt);
+		b3b9 = new XButton();b3b9.init();b3b9.setMain(ttt);
+		
+		b4b1 = new XButton();b4b1.init();b4b1.setMain(ttt);
+		b4b2 = new XButton();b4b2.init();b4b2.setMain(ttt);
+		b4b3 = new XButton();b4b3.init();b4b3.setMain(ttt);
+		b4b4 = new XButton();b4b4.init();b4b4.setMain(ttt);
+		b4b5 = new XButton();b4b5.init();b4b5.setMain(ttt);
+		b4b6 = new XButton();b4b6.init();b4b6.setMain(ttt);
+		b4b7 = new XButton();b4b7.init();b4b7.setMain(ttt);
+		b4b8 = new XButton();b4b8.init();b4b8.setMain(ttt);
+		b4b9 = new XButton();b4b9.init();b4b9.setMain(ttt);
+		
+		b5b1 = new XButton();b5b1.init();b5b1.setMain(ttt);
+		b5b2 = new XButton();b5b2.init();b5b2.setMain(ttt);
+		b5b3 = new XButton();b5b3.init();b5b3.setMain(ttt);
+		b5b4 = new XButton();b5b4.init();b5b4.setMain(ttt);
+		b5b5 = new XButton();b5b5.init();b5b5.setMain(ttt);
+		b5b6 = new XButton();b5b6.init();b5b6.setMain(ttt);
+		b5b7 = new XButton();b5b7.init();b5b7.setMain(ttt);
+		b5b8 = new XButton();b5b8.init();b5b8.setMain(ttt);
+		b5b9 = new XButton();b5b9.init();b5b9.setMain(ttt);
+		
+		b6b1 = new XButton();b6b1.init();b6b1.setMain(ttt);
+		b6b2 = new XButton();b6b2.init();b6b2.setMain(ttt);
+		b6b3 = new XButton();b6b3.init();b6b3.setMain(ttt);
+		b6b4 = new XButton();b6b4.init();b6b4.setMain(ttt);
+		b6b5 = new XButton();b6b5.init();b6b5.setMain(ttt);
+		b6b6 = new XButton();b6b6.init();b6b6.setMain(ttt);
+		b6b7 = new XButton();b6b7.init();b6b7.setMain(ttt);
+		b6b8 = new XButton();b6b8.init();b6b8.setMain(ttt);
+		b6b9 = new XButton();b6b9.init();b6b9.setMain(ttt);
+		
+		b7b1 = new XButton();b7b1.init();b7b1.setMain(ttt);
+		b7b2 = new XButton();b7b2.init();b7b2.setMain(ttt);
+		b7b3 = new XButton();b7b3.init();b7b3.setMain(ttt);
+		b7b4 = new XButton();b7b4.init();b7b4.setMain(ttt);
+		b7b5 = new XButton();b7b5.init();b7b5.setMain(ttt);
+		b7b6 = new XButton();b7b6.init();b7b6.setMain(ttt);
+		b7b7 = new XButton();b7b7.init();b7b7.setMain(ttt);
+		b7b8 = new XButton();b7b8.init();b7b8.setMain(ttt);
+		b7b9 = new XButton();b7b9.init();b7b9.setMain(ttt);
+		
+		b8b1 = new XButton();b8b1.init();b8b1.setMain(ttt);
+		b8b2 = new XButton();b8b2.init();b8b2.setMain(ttt);
+		b8b3 = new XButton();b8b3.init();b8b3.setMain(ttt);
+		b8b4 = new XButton();b8b4.init();b8b4.setMain(ttt);
+		b8b5 = new XButton();b8b5.init();b8b5.setMain(ttt);
+		b8b6 = new XButton();b8b6.init();b8b6.setMain(ttt);
+		b8b7 = new XButton();b8b7.init();b8b7.setMain(ttt);
+		b8b8 = new XButton();b8b8.init();b8b8.setMain(ttt);
+		b8b9 = new XButton();b8b9.init();b8b9.setMain(ttt);
+		
+		b9b1 = new XButton();b9b1.init();b9b1.setMain(ttt);
+		b9b2 = new XButton();b9b2.init();b9b2.setMain(ttt);
+		b9b3 = new XButton();b9b3.init();b9b3.setMain(ttt);
+		b9b4 = new XButton();b9b4.init();b9b4.setMain(ttt);
+		b9b5 = new XButton();b9b5.init();b9b5.setMain(ttt);
+		b9b6 = new XButton();b9b6.init();b9b6.setMain(ttt);
+		b9b7 = new XButton();b9b7.init();b9b7.setMain(ttt);
+		b9b8 = new XButton();b9b8.init();b9b8.setMain(ttt);
+		b9b9 = new XButton();b9b9.init();b9b9.setMain(ttt);
+		
+		board1 = new XButton[]{b1b1,b1b2,b1b3,b1b4,b1b5,b1b6,b1b7,b1b8,b1b9};
+		board2 = new XButton[]{b2b1,b2b2,b2b3,b2b4,b2b5,b2b6,b2b7,b2b8,b2b9};
+		board3 = new XButton[]{b3b1,b3b2,b3b3,b3b4,b3b5,b3b6,b3b7,b3b8,b3b9};
+		board4 = new XButton[]{b4b1,b4b2,b4b3,b4b4,b4b5,b4b6,b4b7,b4b8,b4b9};
+		board5 = new XButton[]{b5b1,b5b2,b5b3,b5b4,b5b5,b5b6,b5b7,b5b8,b5b9};
+		board6 = new XButton[]{b6b1,b6b2,b6b3,b6b4,b6b5,b6b6,b6b7,b6b8,b6b9};
+		board7 = new XButton[]{b7b1,b7b2,b7b3,b7b4,b7b5,b7b6,b7b7,b7b8,b7b9};
+		board8 = new XButton[]{b8b1,b8b2,b8b3,b8b4,b8b5,b8b6,b8b7,b8b8,b8b9};
+		board9 = new XButton[]{b9b1,b9b2,b9b3,b9b4,b9b5,b9b6,b9b7,b9b8,b9b9};
+		boards = new XButton[][]{board1, board2, board3, board4, board5, board6, board7, board8, board9};
+		
+		buttons = new XButton[]{b1b1,b1b2,b1b3,b1b4,b1b5,b1b6,b1b7,b1b8,b1b9, b2b1,b2b2,b2b3,b2b4,b2b5,b2b6,b2b7,b2b8,b2b9, b3b1,b3b2,b3b3,b3b4,b3b5,b3b6,b3b7,b3b8,b3b9, 
+						  		b4b1,b4b2,b4b3,b4b4,b4b5,b4b6,b4b7,b4b8,b4b9, b5b1,b5b2,b5b3,b5b4,b5b5,b5b6,b5b7,b5b8,b5b9, b6b1,b6b2,b6b3,b6b4,b6b5,b6b6,b6b7,b6b8,b6b9, 
+						  		b7b1,b7b2,b7b3,b7b4,b7b5,b7b6,b7b7,b7b8,b7b9, b8b1,b8b2,b8b3,b8b4,b8b5,b8b6,b8b7,b8b8,b8b9, b9b1,b9b2,b9b3,b9b4,b9b5,b9b6,b9b7,b9b8,b9b9};
 		
 		JPanel top = new JPanel();
 		top.setLayout(new BorderLayout());
@@ -1333,73 +584,72 @@ public class TicTacToe {
 		
 		frame.setLocationRelativeTo(null);
 		frame.setVisible(true);
-	}
-	public void check(int board) {
 		
-		if (board != 0) {
+		//CPU(); // Will randomly select a square each second
+	}
+	public void check(boolean size) {
+		
+		if (size == true) {
 			turn();
 		}
-		
-		if (board == 1) {
-			if ( (!b1b1.isEnabled() && !b1b2.isEnabled() && !b1b3.isEnabled()) || (!b1b1.isEnabled() && !b1b4.isEnabled() && !b1b7.isEnabled()) || (!b1b1.isEnabled() && !b1b5.isEnabled() && !b1b9.isEnabled()) 
-					|| (!b1b2.isEnabled() && !b1b5.isEnabled() && !b1b8.isEnabled()) || (!b1b3.isEnabled() && !b1b6.isEnabled() && !b1b9.isEnabled()) || (!b1b3.isEnabled() && !b1b5.isEnabled() && !b1b7.isEnabled())
-					|| (!b1b4.isEnabled() && !b1b5.isEnabled() && !b1b6.isEnabled()) || (!b1b7.isEnabled() && !b1b8.isEnabled() && !b1b9.isEnabled()) ) {
-				blackout(1, 1, 0);
-			}
-		} else if (board == 2) {
-			if ( (!b2b1.isEnabled() && !b2b2.isEnabled() && !b2b3.isEnabled()) || (!b2b1.isEnabled() && !b2b4.isEnabled() && !b2b7.isEnabled()) || (!b2b1.isEnabled() && !b2b5.isEnabled() && !b2b9.isEnabled()) 
-					|| (!b2b2.isEnabled() && !b2b5.isEnabled() && !b2b8.isEnabled()) || (!b2b3.isEnabled() && !b2b6.isEnabled() && !b2b9.isEnabled()) || (!b2b3.isEnabled() && !b2b5.isEnabled() && !b2b7.isEnabled())
-					|| (!b2b4.isEnabled() && !b2b5.isEnabled() && !b2b6.isEnabled()) || (!b2b7.isEnabled() && !b2b8.isEnabled() && !b2b9.isEnabled()) ) {
-				blackout(1, 2, 0);
-			}
-		} else if (board == 3) {
-			if ( (!b3b1.isEnabled() && !b3b2.isEnabled() && !b3b3.isEnabled()) || (!b3b1.isEnabled() && !b3b4.isEnabled() && !b3b7.isEnabled()) || (!b3b1.isEnabled() && !b3b5.isEnabled() && !b3b9.isEnabled()) 
-					|| (!b3b2.isEnabled() && !b3b5.isEnabled() && !b3b8.isEnabled()) || (!b3b3.isEnabled() && !b3b6.isEnabled() && !b3b9.isEnabled()) || (!b3b3.isEnabled() && !b3b5.isEnabled() && !b3b7.isEnabled())
-					|| (!b3b4.isEnabled() && !b3b5.isEnabled() && !b3b6.isEnabled()) || (!b3b7.isEnabled() && !b3b8.isEnabled() && !b3b9.isEnabled()) ) {
-				blackout(1, 3, 0);
-			}
-		} else if (board == 4) {
-			if ( (!b4b1.isEnabled() && !b4b2.isEnabled() && !b4b3.isEnabled()) || (!b4b1.isEnabled() && !b4b4.isEnabled() && !b4b7.isEnabled()) || (!b4b1.isEnabled() && !b4b5.isEnabled() && !b4b9.isEnabled()) 
-					|| (!b4b2.isEnabled() && !b4b5.isEnabled() && !b4b8.isEnabled()) || (!b4b3.isEnabled() && !b4b6.isEnabled() && !b4b9.isEnabled()) || (!b4b3.isEnabled() && !b4b5.isEnabled() && !b4b7.isEnabled())
-					|| (!b4b4.isEnabled() && !b4b5.isEnabled() && !b4b6.isEnabled()) || (!b4b7.isEnabled() && !b4b8.isEnabled() && !b4b9.isEnabled()) ) {
-				blackout(2, 1, 0);
-			}
-		} else if (board == 5) {
-			if ( (!b5b1.isEnabled() && !b5b2.isEnabled() && !b5b3.isEnabled()) || (!b5b1.isEnabled() && !b5b4.isEnabled() && !b5b7.isEnabled()) || (!b5b1.isEnabled() && !b5b5.isEnabled() && !b5b9.isEnabled()) 
-					|| (!b5b2.isEnabled() && !b5b5.isEnabled() && !b5b8.isEnabled()) || (!b5b3.isEnabled() && !b5b6.isEnabled() && !b5b9.isEnabled()) || (!b5b3.isEnabled() && !b5b5.isEnabled() && !b5b7.isEnabled())
-					|| (!b5b4.isEnabled() && !b5b5.isEnabled() && !b5b6.isEnabled()) || (!b5b7.isEnabled() && !b5b8.isEnabled() && !b5b9.isEnabled()) ) {
-				blackout(2, 2, 0);
-			}
-		} else if (board == 6) {
-			if ( (!b6b1.isEnabled() && !b6b2.isEnabled() && !b6b3.isEnabled()) || (!b6b1.isEnabled() && !b6b4.isEnabled() && !b6b7.isEnabled()) || (!b6b1.isEnabled() && !b6b5.isEnabled() && !b6b9.isEnabled()) 
-					|| (!b6b2.isEnabled() && !b6b5.isEnabled() && !b6b8.isEnabled()) || (!b6b3.isEnabled() && !b6b6.isEnabled() && !b6b9.isEnabled()) || (!b6b3.isEnabled() && !b6b5.isEnabled() && !b6b7.isEnabled())
-					|| (!b6b4.isEnabled() && !b6b5.isEnabled() && !b6b6.isEnabled()) || (!b6b7.isEnabled() && !b6b8.isEnabled() && !b6b9.isEnabled()) ) {
-				blackout(2, 3, 0);
-			}
-		} else if (board == 7) {
-			if ( (!b7b1.isEnabled() && !b7b2.isEnabled() && !b7b3.isEnabled()) || (!b7b1.isEnabled() && !b7b4.isEnabled() && !b7b7.isEnabled()) || (!b7b1.isEnabled() && !b7b5.isEnabled() && !b7b9.isEnabled()) 
-					|| (!b7b2.isEnabled() && !b7b5.isEnabled() && !b7b8.isEnabled()) || (!b7b3.isEnabled() && !b7b6.isEnabled() && !b7b9.isEnabled()) || (!b7b3.isEnabled() && !b7b5.isEnabled() && !b7b7.isEnabled())
-					|| (!b7b4.isEnabled() && !b7b5.isEnabled() && !b7b6.isEnabled()) || (!b7b7.isEnabled() && !b7b8.isEnabled() && !b7b9.isEnabled()) ) {
-				blackout(3, 1, 0);
-			}
-		} else if (board == 8) {
-			if ( (!b8b1.isEnabled() && !b8b2.isEnabled() && !b8b3.isEnabled()) || (!b8b1.isEnabled() && !b8b4.isEnabled() && !b8b7.isEnabled()) || (!b8b1.isEnabled() && !b8b5.isEnabled() && !b8b9.isEnabled()) 
-					|| (!b8b2.isEnabled() && !b8b5.isEnabled() && !b8b8.isEnabled()) || (!b8b3.isEnabled() && !b8b6.isEnabled() && !b8b9.isEnabled()) || (!b8b3.isEnabled() && !b8b5.isEnabled() && !b8b7.isEnabled())
-					|| (!b8b4.isEnabled() && !b8b5.isEnabled() && !b8b6.isEnabled()) || (!b8b7.isEnabled() && !b8b8.isEnabled() && !b8b9.isEnabled()) ) {
-				blackout(3, 2, 0);
-			}
-		} else if (board == 9) {
-			if ( (!b9b1.isEnabled() && !b9b2.isEnabled() && !b9b3.isEnabled()) || (!b9b1.isEnabled() && !b9b4.isEnabled() && !b9b7.isEnabled()) || (!b9b1.isEnabled() && !b9b5.isEnabled() && !b9b9.isEnabled()) 
-					|| (!b9b2.isEnabled() && !b9b5.isEnabled() && !b9b8.isEnabled()) || (!b9b3.isEnabled() && !b9b6.isEnabled() && !b9b9.isEnabled()) || (!b9b3.isEnabled() && !b9b5.isEnabled() && !b9b7.isEnabled())
-					|| (!b9b4.isEnabled() && !b9b5.isEnabled() && !b9b6.isEnabled()) || (!b9b7.isEnabled() && !b9b8.isEnabled() && !b9b9.isEnabled()) ) {
-				blackout(3, 3, 0);
-			}
-		} else {
-			if ( (blackouts[0][0] && blackouts[0][1] && blackouts[0][2]) || (blackouts[0][0] && blackouts[1][0] && blackouts[2][0]) || (blackouts[0][0] && blackouts[1][1] && blackouts[2][2]) 
-					|| (blackouts[1][0] && blackouts[1][1] && blackouts[1][2]) || (blackouts[2][0] && blackouts[2][1] && blackouts[2][2]) || (blackouts[0][1] && blackouts[1][1] && blackouts[2][1])
-					|| (blackouts[0][2] && blackouts[1][2] && blackouts[2][2]) || (blackouts[2][0] && blackouts[1][1] && blackouts[0][2]) ) {
-				blackout(0, 0, 1);
-			}
+		if (blackout_b1 == false && ( (!b1b1.isEnabled() && !b1b2.isEnabled() && !b1b3.isEnabled()) || (!b1b1.isEnabled() && !b1b4.isEnabled() && !b1b7.isEnabled()) || (!b1b1.isEnabled() && !b1b5.isEnabled() && !b1b9.isEnabled()) 
+				|| (!b1b2.isEnabled() && !b1b5.isEnabled() && !b1b8.isEnabled()) || (!b1b3.isEnabled() && !b1b6.isEnabled() && !b1b9.isEnabled()) || (!b1b3.isEnabled() && !b1b5.isEnabled() && !b1b7.isEnabled())
+				|| (!b1b4.isEnabled() && !b1b5.isEnabled() && !b1b6.isEnabled()) || (!b1b7.isEnabled() && !b1b8.isEnabled() && !b1b9.isEnabled())) ) {
+			blackout_b1 = true;
+			blackout(1, 1, 0);
+		}
+		if (blackout_b2 == false && ( (!b2b1.isEnabled() && !b2b2.isEnabled() && !b2b3.isEnabled()) || (!b2b1.isEnabled() && !b2b4.isEnabled() && !b2b7.isEnabled()) || (!b2b1.isEnabled() && !b2b5.isEnabled() && !b2b9.isEnabled()) 
+				|| (!b2b2.isEnabled() && !b2b5.isEnabled() && !b2b8.isEnabled()) || (!b2b3.isEnabled() && !b2b6.isEnabled() && !b2b9.isEnabled()) || (!b2b3.isEnabled() && !b2b5.isEnabled() && !b2b7.isEnabled())
+				|| (!b2b4.isEnabled() && !b2b5.isEnabled() && !b2b6.isEnabled()) || (!b2b7.isEnabled() && !b2b8.isEnabled() && !b2b9.isEnabled())) ) {
+			blackout_b2 = true;
+			blackout(1, 2, 0);
+		}
+		if (blackout_b3 == false && ( (!b3b1.isEnabled() && !b3b2.isEnabled() && !b3b3.isEnabled()) || (!b3b1.isEnabled() && !b3b4.isEnabled() && !b3b7.isEnabled()) || (!b3b1.isEnabled() && !b3b5.isEnabled() && !b3b9.isEnabled()) 
+				|| (!b3b2.isEnabled() && !b3b5.isEnabled() && !b3b8.isEnabled()) || (!b3b3.isEnabled() && !b3b6.isEnabled() && !b3b9.isEnabled()) || (!b3b3.isEnabled() && !b3b5.isEnabled() && !b3b7.isEnabled())
+				|| (!b3b4.isEnabled() && !b3b5.isEnabled() && !b3b6.isEnabled()) || (!b3b7.isEnabled() && !b3b8.isEnabled() && !b3b9.isEnabled())) ) {
+			blackout_b3 = true;
+			blackout(1, 3, 0);
+		}
+		if (blackout_b4 == false && ( (!b4b1.isEnabled() && !b4b2.isEnabled() && !b4b3.isEnabled()) || (!b4b1.isEnabled() && !b4b4.isEnabled() && !b4b7.isEnabled()) || (!b4b1.isEnabled() && !b4b5.isEnabled() && !b4b9.isEnabled()) 
+				|| (!b4b2.isEnabled() && !b4b5.isEnabled() && !b4b8.isEnabled()) || (!b4b3.isEnabled() && !b4b6.isEnabled() && !b4b9.isEnabled()) || (!b4b3.isEnabled() && !b4b5.isEnabled() && !b4b7.isEnabled())
+				|| (!b4b4.isEnabled() && !b4b5.isEnabled() && !b4b6.isEnabled()) || (!b4b7.isEnabled() && !b4b8.isEnabled() && !b4b9.isEnabled())) ) {
+			blackout_b4 = true;
+			blackout(2, 1, 0);
+		}
+		if (blackout_b5 == false && ( (!b5b1.isEnabled() && !b5b2.isEnabled() && !b5b3.isEnabled()) || (!b5b1.isEnabled() && !b5b4.isEnabled() && !b5b7.isEnabled()) || (!b5b1.isEnabled() && !b5b5.isEnabled() && !b5b9.isEnabled()) 
+				|| (!b5b2.isEnabled() && !b5b5.isEnabled() && !b5b8.isEnabled()) || (!b5b3.isEnabled() && !b5b6.isEnabled() && !b5b9.isEnabled()) || (!b5b3.isEnabled() && !b5b5.isEnabled() && !b5b7.isEnabled())
+				|| (!b5b4.isEnabled() && !b5b5.isEnabled() && !b5b6.isEnabled()) || (!b5b7.isEnabled() && !b5b8.isEnabled() && !b5b9.isEnabled())) ) {
+			blackout_b5 = true;
+			blackout(2, 2, 0);
+		}
+		if (blackout_b6 == false && ( (!b6b1.isEnabled() && !b6b2.isEnabled() && !b6b3.isEnabled()) || (!b6b1.isEnabled() && !b6b4.isEnabled() && !b6b7.isEnabled()) || (!b6b1.isEnabled() && !b6b5.isEnabled() && !b6b9.isEnabled()) 
+				|| (!b6b2.isEnabled() && !b6b5.isEnabled() && !b6b8.isEnabled()) || (!b6b3.isEnabled() && !b6b6.isEnabled() && !b6b9.isEnabled()) || (!b6b3.isEnabled() && !b6b5.isEnabled() && !b6b7.isEnabled())
+				|| (!b6b4.isEnabled() && !b6b5.isEnabled() && !b6b6.isEnabled()) || (!b6b7.isEnabled() && !b6b8.isEnabled() && !b6b9.isEnabled())) ) {
+			blackout_b6 = true;
+			blackout(2, 3, 0);
+		}
+		if (blackout_b7 == false && ( (!b7b1.isEnabled() && !b7b2.isEnabled() && !b7b3.isEnabled()) || (!b7b1.isEnabled() && !b7b4.isEnabled() && !b7b7.isEnabled()) || (!b7b1.isEnabled() && !b7b5.isEnabled() && !b7b9.isEnabled()) 
+				|| (!b7b2.isEnabled() && !b7b5.isEnabled() && !b7b8.isEnabled()) || (!b7b3.isEnabled() && !b7b6.isEnabled() && !b7b9.isEnabled()) || (!b7b3.isEnabled() && !b7b5.isEnabled() && !b7b7.isEnabled())
+				|| (!b7b4.isEnabled() && !b7b5.isEnabled() && !b7b6.isEnabled()) || (!b7b7.isEnabled() && !b7b8.isEnabled() && !b7b9.isEnabled())) ) {
+			blackout_b7 = true;
+			blackout(3, 1, 0);
+		}
+		if (blackout_b8 == false && ( (!b8b1.isEnabled() && !b8b2.isEnabled() && !b8b3.isEnabled()) || (!b8b1.isEnabled() && !b8b4.isEnabled() && !b8b7.isEnabled()) || (!b8b1.isEnabled() && !b8b5.isEnabled() && !b8b9.isEnabled()) 
+				|| (!b8b2.isEnabled() && !b8b5.isEnabled() && !b8b8.isEnabled()) || (!b8b3.isEnabled() && !b8b6.isEnabled() && !b8b9.isEnabled()) || (!b8b3.isEnabled() && !b8b5.isEnabled() && !b8b7.isEnabled())
+				|| (!b8b4.isEnabled() && !b8b5.isEnabled() && !b8b6.isEnabled()) || (!b8b7.isEnabled() && !b8b8.isEnabled() && !b8b9.isEnabled())) ) {
+			blackout_b8 = true;
+			blackout(3, 2, 0);
+		}
+		if (blackout_b9 == false && ( (!b9b1.isEnabled() && !b9b2.isEnabled() && !b9b3.isEnabled()) || (!b9b1.isEnabled() && !b9b4.isEnabled() && !b9b7.isEnabled()) || (!b9b1.isEnabled() && !b9b5.isEnabled() && !b9b9.isEnabled()) 
+				|| (!b9b2.isEnabled() && !b9b5.isEnabled() && !b9b8.isEnabled()) || (!b9b3.isEnabled() && !b9b6.isEnabled() && !b9b9.isEnabled()) || (!b9b3.isEnabled() && !b9b5.isEnabled() && !b9b7.isEnabled())
+				|| (!b9b4.isEnabled() && !b9b5.isEnabled() && !b9b6.isEnabled()) || (!b9b7.isEnabled() && !b9b8.isEnabled() && !b9b9.isEnabled())) ) {
+			blackout_b9 = true;
+			blackout(3, 3, 0);
+		}
+		if ( (blackouts[0][0] && blackouts[0][1] && blackouts[0][2]) || (blackouts[0][0] && blackouts[1][0] && blackouts[2][0]) || (blackouts[0][0] && blackouts[1][1] && blackouts[2][2]) 
+				|| (blackouts[1][0] && blackouts[1][1] && blackouts[1][2]) || (blackouts[2][0] && blackouts[2][1] && blackouts[2][2]) || (blackouts[0][1] && blackouts[1][1] && blackouts[2][1])
+				|| (blackouts[0][2] && blackouts[1][2] && blackouts[2][2]) || (blackouts[2][0] && blackouts[1][1] && blackouts[0][2]) ) {
+			blackout(0, 0, 1);
 		}
 	}
 	public void turn() {
@@ -1413,429 +663,86 @@ public class TicTacToe {
 			turnLabel.setText("<html><font color=\"blue\">Player 1's turn</font></html>");
 		}
 		
-		frame.setTitle("Tic Tac Toe          -          All X's          -          9 boards          -          Move " + turnNum);
+		frame.setTitle("Tic Tac Toe, All X's - Move " + turnNum);
 	}
 	public void blackout(int x, int y, int scale) {
 		
 		if (scale == 0) {
 			if (x == 1 && y == 1) {
-				b1b1.setBackground(Color.BLACK);
-				b1b2.setBackground(Color.BLACK);
-				b1b3.setBackground(Color.BLACK);
-				b1b4.setBackground(Color.BLACK);
-				b1b5.setBackground(Color.BLACK);
-				b1b6.setBackground(Color.BLACK);
-				b1b7.setBackground(Color.BLACK);
-				b1b8.setBackground(Color.BLACK);
-				b1b9.setBackground(Color.BLACK);
-				if (b1b1.isEnabled()) {
-					b1b1.setText(" ");
-					b1b1.setEnabled(false);
-				}
-				if (b1b2.isEnabled()) {
-					b1b2.setText(" ");
-					b1b2.setEnabled(false);
-				}
-				if (b1b3.isEnabled()) {
-					b1b3.setText(" ");
-					b1b3.setEnabled(false);
-				}
-				if (b1b4.isEnabled()) {
-					b1b4.setText(" ");
-					b1b4.setEnabled(false);
-				}
-				if (b1b5.isEnabled()) {
-					b1b5.setText(" ");
-					b1b5.setEnabled(false);
-				}
-				if (b1b6.isEnabled()) {
-					b1b6.setText(" ");
-					b1b6.setEnabled(false);
-				}
-				if (b1b7.isEnabled()) {
-					b1b7.setText(" ");
-					b1b7.setEnabled(false);
-				}
-				if (b1b8.isEnabled()) {
-					b1b8.setText(" ");
-					b1b8.setEnabled(false);
-				}
-				if (b1b9.isEnabled()) {
-					b1b9.setText(" ");
-					b1b9.setEnabled(false);
+				for (int i=0; i<9; i++) {
+					board1[i].setColor(Color.BLACK);
+					if (board1[i].getEnabled() == true) {
+						board1[i].changeText(" ");
+						board1[i].changeState(false);
+					}
 				}
 			} else if (x == 1 && y == 2) {
-				b2b1.setBackground(Color.BLACK);
-				b2b2.setBackground(Color.BLACK);
-				b2b3.setBackground(Color.BLACK);
-				b2b4.setBackground(Color.BLACK);
-				b2b5.setBackground(Color.BLACK);
-				b2b6.setBackground(Color.BLACK);
-				b2b7.setBackground(Color.BLACK);
-				b2b8.setBackground(Color.BLACK);
-				b2b9.setBackground(Color.BLACK);
-				if (b2b1.isEnabled()) {
-					b2b1.setText(" ");
-					b2b1.setEnabled(false);
-				}
-				if (b2b2.isEnabled()) {
-					b2b2.setText(" ");
-					b2b2.setEnabled(false);
-				}
-				if (b2b3.isEnabled()) {
-					b2b3.setText(" ");
-					b2b3.setEnabled(false);
-				}
-				if (b2b4.isEnabled()) {
-					b2b4.setText(" ");
-					b2b4.setEnabled(false);
-				}
-				if (b2b5.isEnabled()) {
-					b2b5.setText(" ");
-					b2b5.setEnabled(false);
-				}
-				if (b2b6.isEnabled()) {
-					b2b6.setText(" ");
-					b2b6.setEnabled(false);
-				}
-				if (b2b7.isEnabled()) {
-					b2b7.setText(" ");
-					b2b7.setEnabled(false);
-				}
-				if (b2b8.isEnabled()) {
-					b2b8.setText(" ");
-					b2b8.setEnabled(false);
-				}
-				if (b2b9.isEnabled()) {
-					b2b9.setText(" ");
-					b2b9.setEnabled(false);
+				for (int i=0; i<9; i++) {
+					board2[i].setColor(Color.BLACK);
+					if (board2[i].getEnabled() == true) {
+						board2[i].changeText(" ");
+						board2[i].changeState(false);
+					}
 				}
 			} else if (x == 1 && y == 3) {
-				b3b1.setBackground(Color.BLACK);
-				b3b2.setBackground(Color.BLACK);
-				b3b3.setBackground(Color.BLACK);
-				b3b4.setBackground(Color.BLACK);
-				b3b5.setBackground(Color.BLACK);
-				b3b6.setBackground(Color.BLACK);
-				b3b7.setBackground(Color.BLACK);
-				b3b8.setBackground(Color.BLACK);
-				b3b9.setBackground(Color.BLACK);
-				if (b3b1.isEnabled()) {
-					b3b1.setText(" ");
-					b3b1.setEnabled(false);
-				}
-				if (b3b2.isEnabled()) {
-					b3b2.setText(" ");
-					b3b2.setEnabled(false);
-				}
-				if (b3b3.isEnabled()) {
-					b3b3.setText(" ");
-					b3b3.setEnabled(false);
-				}
-				if (b3b4.isEnabled()) {
-					b3b4.setText(" ");
-					b3b4.setEnabled(false);
-				}
-				if (b3b5.isEnabled()) {
-					b3b5.setText(" ");
-					b3b5.setEnabled(false);
-				}
-				if (b3b6.isEnabled()) {
-					b3b6.setText(" ");
-					b3b6.setEnabled(false);
-				}
-				if (b3b7.isEnabled()) {
-					b3b7.setText(" ");
-					b3b7.setEnabled(false);
-				}
-				if (b3b8.isEnabled()) {
-					b3b8.setText(" ");
-					b3b8.setEnabled(false);
-				}
-				if (b3b9.isEnabled()) {
-					b3b9.setText(" ");
-					b3b9.setEnabled(false);
+				for (int i=0; i<9; i++) {
+					board3[i].setColor(Color.BLACK);
+					if (board3[i].getEnabled() == true) {
+						board3[i].changeText(" ");
+						board3[i].changeState(false);
+					}
 				}
 			} else if (x == 2 && y == 1) {
-				b4b1.setBackground(Color.BLACK);
-				b4b2.setBackground(Color.BLACK);
-				b4b3.setBackground(Color.BLACK);
-				b4b4.setBackground(Color.BLACK);
-				b4b5.setBackground(Color.BLACK);
-				b4b6.setBackground(Color.BLACK);
-				b4b7.setBackground(Color.BLACK);
-				b4b8.setBackground(Color.BLACK);
-				b4b9.setBackground(Color.BLACK);
-				if (b4b1.isEnabled()) {
-					b4b1.setText(" ");
-					b4b1.setEnabled(false);
-				}
-				if (b4b2.isEnabled()) {
-					b4b2.setText(" ");
-					b4b2.setEnabled(false);
-				}
-				if (b4b3.isEnabled()) {
-					b4b3.setText(" ");
-					b4b3.setEnabled(false);
-				}
-				if (b4b4.isEnabled()) {
-					b4b4.setText(" ");
-					b4b4.setEnabled(false);
-				}
-				if (b4b5.isEnabled()) {
-					b4b5.setText(" ");
-					b4b5.setEnabled(false);
-				}
-				if (b4b6.isEnabled()) {
-					b4b6.setText(" ");
-					b4b6.setEnabled(false);
-				}
-				if (b4b7.isEnabled()) {
-					b4b7.setText(" ");
-					b4b7.setEnabled(false);
-				}
-				if (b4b8.isEnabled()) {
-					b4b8.setText(" ");
-					b4b8.setEnabled(false);
-				}
-				if (b4b9.isEnabled()) {
-					b4b9.setText(" ");
-					b4b9.setEnabled(false);
+				for (int i=0; i<9; i++) {
+					board4[i].setColor(Color.BLACK);
+					if (board4[i].getEnabled() == true) {
+						board4[i].changeText(" ");
+						board4[i].changeState(false);
+					}
 				}
 			} else if (x == 2 && y == 2) {
-				b5b1.setBackground(Color.BLACK);
-				b5b2.setBackground(Color.BLACK);
-				b5b3.setBackground(Color.BLACK);
-				b5b4.setBackground(Color.BLACK);
-				b5b5.setBackground(Color.BLACK);
-				b5b6.setBackground(Color.BLACK);
-				b5b7.setBackground(Color.BLACK);
-				b5b8.setBackground(Color.BLACK);
-				b5b9.setBackground(Color.BLACK);
-				if (b5b1.isEnabled()) {
-					b5b1.setText(" ");
-					b5b1.setEnabled(false);
-				}
-				if (b5b2.isEnabled()) {
-					b5b2.setText(" ");
-					b5b2.setEnabled(false);
-				}
-				if (b5b3.isEnabled()) {
-					b5b3.setText(" ");
-					b5b3.setEnabled(false);
-				}
-				if (b5b4.isEnabled()) {
-					b5b4.setText(" ");
-					b5b4.setEnabled(false);
-				}
-				if (b5b5.isEnabled()) {
-					b5b5.setText(" ");
-					b5b5.setEnabled(false);
-				}
-				if (b5b6.isEnabled()) {
-					b5b6.setText(" ");
-					b5b6.setEnabled(false);
-				}
-				if (b5b7.isEnabled()) {
-					b5b7.setText(" ");
-					b5b7.setEnabled(false);
-				}
-				if (b5b8.isEnabled()) {
-					b5b8.setText(" ");
-					b5b8.setEnabled(false);
-				}
-				if (b5b9.isEnabled()) {
-					b5b9.setText(" ");
-					b5b9.setEnabled(false);
+				for (int i=0; i<9; i++) {
+					board5[i].setColor(Color.BLACK);
+					if (board5[i].getEnabled() == true) {
+						board5[i].changeText(" ");
+						board5[i].changeState(false);
+					}
 				}
 			} else if (x == 2 && y == 3) {
-				b6b1.setBackground(Color.BLACK);
-				b6b2.setBackground(Color.BLACK);
-				b6b3.setBackground(Color.BLACK);
-				b6b4.setBackground(Color.BLACK);
-				b6b5.setBackground(Color.BLACK);
-				b6b6.setBackground(Color.BLACK);
-				b6b7.setBackground(Color.BLACK);
-				b6b8.setBackground(Color.BLACK);
-				b6b9.setBackground(Color.BLACK);
-				if (b6b1.isEnabled()) {
-					b6b1.setText(" ");
-					b6b1.setEnabled(false);
-				}
-				if (b6b2.isEnabled()) {
-					b6b2.setText(" ");
-					b6b2.setEnabled(false);
-				}
-				if (b6b3.isEnabled()) {
-					b6b3.setText(" ");
-					b6b3.setEnabled(false);
-				}
-				if (b6b4.isEnabled()) {
-					b6b4.setText(" ");
-					b6b4.setEnabled(false);
-				}
-				if (b6b5.isEnabled()) {
-					b6b5.setText(" ");
-					b6b5.setEnabled(false);
-				}
-				if (b6b6.isEnabled()) {
-					b6b6.setText(" ");
-					b6b6.setEnabled(false);
-				}
-				if (b6b7.isEnabled()) {
-					b6b7.setText(" ");
-					b6b7.setEnabled(false);
-				}
-				if (b6b8.isEnabled()) {
-					b6b8.setText(" ");
-					b6b8.setEnabled(false);
-				}
-				if (b6b9.isEnabled()) {
-					b6b9.setText(" ");
-					b6b9.setEnabled(false);
+				for (int i=0; i<9; i++) {
+					board6[i].setColor(Color.BLACK);
+					if (board6[i].getEnabled() == true) {
+						board6[i].changeText(" ");
+						board6[i].changeState(false);
+					}
 				}
 			} else if (x == 3 && y == 1) {
-				b7b1.setBackground(Color.BLACK);
-				b7b2.setBackground(Color.BLACK);
-				b7b3.setBackground(Color.BLACK);
-				b7b4.setBackground(Color.BLACK);
-				b7b5.setBackground(Color.BLACK);
-				b7b6.setBackground(Color.BLACK);
-				b7b7.setBackground(Color.BLACK);
-				b7b8.setBackground(Color.BLACK);
-				b7b9.setBackground(Color.BLACK);
-				if (b7b1.isEnabled()) {
-					b7b1.setText(" ");
-					b7b1.setEnabled(false);
-				}
-				if (b7b2.isEnabled()) {
-					b7b2.setText(" ");
-					b7b2.setEnabled(false);
-				}
-				if (b7b3.isEnabled()) {
-					b7b3.setText(" ");
-					b7b3.setEnabled(false);
-				}
-				if (b7b4.isEnabled()) {
-					b7b4.setText(" ");
-					b7b4.setEnabled(false);
-				}
-				if (b7b5.isEnabled()) {
-					b7b5.setText(" ");
-					b7b5.setEnabled(false);
-				}
-				if (b7b6.isEnabled()) {
-					b7b6.setText(" ");
-					b7b6.setEnabled(false);
-				}
-				if (b7b7.isEnabled()) {
-					b7b7.setText(" ");
-					b7b7.setEnabled(false);
-				}
-				if (b7b8.isEnabled()) {
-					b7b8.setText(" ");
-					b7b8.setEnabled(false);
-				}
-				if (b7b9.isEnabled()) {
-					b7b9.setText(" ");
-					b7b9.setEnabled(false);
+				for (int i=0; i<9; i++) {
+					board7[i].setColor(Color.BLACK);
+					if (board7[i].getEnabled() == true) {
+						board7[i].changeText(" ");
+						board7[i].changeState(false);
+					}
 				}
 			} else if (x == 3 && y == 2) {
-				b8b1.setBackground(Color.BLACK);
-				b8b2.setBackground(Color.BLACK);
-				b8b3.setBackground(Color.BLACK);
-				b8b4.setBackground(Color.BLACK);
-				b8b5.setBackground(Color.BLACK);
-				b8b6.setBackground(Color.BLACK);
-				b8b7.setBackground(Color.BLACK);
-				b8b8.setBackground(Color.BLACK);
-				b8b9.setBackground(Color.BLACK);
-				if (b8b1.isEnabled()) {
-					b8b1.setText(" ");
-					b8b1.setEnabled(false);
-				}
-				if (b8b2.isEnabled()) {
-					b8b2.setText(" ");
-					b8b2.setEnabled(false);
-				}
-				if (b8b3.isEnabled()) {
-					b8b3.setText(" ");
-					b8b3.setEnabled(false);
-				}
-				if (b8b4.isEnabled()) {
-					b8b4.setText(" ");
-					b8b4.setEnabled(false);
-				}
-				if (b8b5.isEnabled()) {
-					b8b5.setText(" ");
-					b8b5.setEnabled(false);
-				}
-				if (b8b6.isEnabled()) {
-					b8b6.setText(" ");
-					b8b6.setEnabled(false);
-				}
-				if (b8b7.isEnabled()) {
-					b8b7.setText(" ");
-					b8b7.setEnabled(false);
-				}
-				if (b8b8.isEnabled()) {
-					b8b8.setText(" ");
-					b8b8.setEnabled(false);
-				}
-				if (b8b9.isEnabled()) {
-					b8b9.setText(" ");
-					b8b9.setEnabled(false);
+				for (int i=0; i<9; i++) {
+					board8[i].setColor(Color.BLACK);
+					if (board8[i].getEnabled() == true) {
+						board8[i].changeText(" ");
+						board8[i].changeState(false);
+					}
 				}
 			} else if (x == 3 && y == 3) {
-				b9b1.setBackground(Color.BLACK);
-				b9b2.setBackground(Color.BLACK);
-				b9b3.setBackground(Color.BLACK);
-				b9b4.setBackground(Color.BLACK);
-				b9b5.setBackground(Color.BLACK);
-				b9b6.setBackground(Color.BLACK);
-				b9b7.setBackground(Color.BLACK);
-				b9b8.setBackground(Color.BLACK);
-				b9b9.setBackground(Color.BLACK);
-				if (b9b1.isEnabled()) {
-					b9b1.setText(" ");
-					b9b1.setEnabled(false);
-				}
-				if (b9b2.isEnabled()) {
-					b9b2.setText(" ");
-					b9b2.setEnabled(false);
-				}
-				if (b9b3.isEnabled()) {
-					b9b3.setText(" ");
-					b9b3.setEnabled(false);
-				}
-				if (b9b4.isEnabled()) {
-					b9b4.setText(" ");
-					b9b4.setEnabled(false);
-				}
-				if (b9b5.isEnabled()) {
-					b9b5.setText(" ");
-					b9b5.setEnabled(false);
-				}
-				if (b9b6.isEnabled()) {
-					b9b6.setText(" ");
-					b9b6.setEnabled(false);
-				}
-				if (b9b7.isEnabled()) {
-					b9b7.setText(" ");
-					b9b7.setEnabled(false);
-				}
-				if (b9b8.isEnabled()) {
-					b9b8.setText(" ");
-					b9b8.setEnabled(false);
-				}
-				if (b9b9.isEnabled()) {
-					b9b9.setText(" ");
-					b9b9.setEnabled(false);
+				for (int i=0; i<9; i++) {
+					board9[i].setColor(Color.BLACK);
+					if (board9[i].getEnabled() == true) {
+						board9[i].changeText(" ");
+						board9[i].changeState(false);
+					}
 				}
 			}
-			
 			blackouts[x-1][y-1] = true;
-			check(0);
+			check(false);
 		} else {
 			if (turnNum % 2 == 0) {
 				winner = new Color(0, 200, 0);
@@ -1845,411 +752,55 @@ public class TicTacToe {
 				turnLabel.setText("<html><font color=\"blue\">Player 1 wins</font></html>");
 			}
 			
-			b1b1.setBackground(winner);
-			b1b2.setBackground(winner);
-			b1b3.setBackground(winner);
-			b1b4.setBackground(winner);
-			b1b5.setBackground(winner);
-			b1b6.setBackground(winner);
-			b1b7.setBackground(winner);
-			b1b8.setBackground(winner);
-			b1b9.setBackground(winner);
-			if (b1b1.isEnabled()) {
-				b1b1.setText(" ");
-				b1b1.setEnabled(false);
-			}
-			if (b1b2.isEnabled()) {
-				b1b2.setText(" ");
-				b1b2.setEnabled(false);
-			}
-			if (b1b3.isEnabled()) {
-				b1b3.setText(" ");
-				b1b3.setEnabled(false);
-			}
-			if (b1b4.isEnabled()) {
-				b1b4.setText(" ");
-				b1b4.setEnabled(false);
-			}
-			if (b1b5.isEnabled()) {
-				b1b5.setText(" ");
-				b1b5.setEnabled(false);
-			}
-			if (b1b6.isEnabled()) {
-				b1b6.setText(" ");
-				b1b6.setEnabled(false);
-			}
-			if (b1b7.isEnabled()) {
-				b1b7.setText(" ");
-				b1b7.setEnabled(false);
-			}
-			if (b1b8.isEnabled()) {
-				b1b8.setText(" ");
-				b1b8.setEnabled(false);
-			}
-			if (b1b9.isEnabled()) {
-				b1b9.setText(" ");
-				b1b9.setEnabled(false);
-			}
-			b2b1.setBackground(winner);
-			b2b2.setBackground(winner);
-			b2b3.setBackground(winner);
-			b2b4.setBackground(winner);
-			b2b5.setBackground(winner);
-			b2b6.setBackground(winner);
-			b2b7.setBackground(winner);
-			b2b8.setBackground(winner);
-			b2b9.setBackground(winner);
-			if (b2b1.isEnabled()) {
-				b2b1.setText(" ");
-				b2b1.setEnabled(false);
-			}
-			if (b2b2.isEnabled()) {
-				b2b2.setText(" ");
-				b2b2.setEnabled(false);
-			}
-			if (b2b3.isEnabled()) {
-				b2b3.setText(" ");
-				b2b3.setEnabled(false);
-			}
-			if (b2b4.isEnabled()) {
-				b2b4.setText(" ");
-				b2b4.setEnabled(false);
-			}
-			if (b2b5.isEnabled()) {
-				b2b5.setText(" ");
-				b2b5.setEnabled(false);
-			}
-			if (b2b6.isEnabled()) {
-				b2b6.setText(" ");
-				b2b6.setEnabled(false);
-			}
-			if (b2b7.isEnabled()) {
-				b2b7.setText(" ");
-				b2b7.setEnabled(false);
-			}
-			if (b2b8.isEnabled()) {
-				b2b8.setText(" ");
-				b2b8.setEnabled(false);
-			}
-			if (b2b9.isEnabled()) {
-				b2b9.setText(" ");
-				b2b9.setEnabled(false);
-			}
-			b3b1.setBackground(winner);
-			b3b2.setBackground(winner);
-			b3b3.setBackground(winner);
-			b3b4.setBackground(winner);
-			b3b5.setBackground(winner);
-			b3b6.setBackground(winner);
-			b3b7.setBackground(winner);
-			b3b8.setBackground(winner);
-			b3b9.setBackground(winner);
-			if (b3b1.isEnabled()) {
-				b3b1.setText(" ");
-				b3b1.setEnabled(false);
-			}
-			if (b3b2.isEnabled()) {
-				b3b2.setText(" ");
-				b3b2.setEnabled(false);
-			}
-			if (b3b3.isEnabled()) {
-				b3b3.setText(" ");
-				b3b3.setEnabled(false);
-			}
-			if (b3b4.isEnabled()) {
-				b3b4.setText(" ");
-				b3b4.setEnabled(false);
-			}
-			if (b3b5.isEnabled()) {
-				b3b5.setText(" ");
-				b3b5.setEnabled(false);
-			}
-			if (b3b6.isEnabled()) {
-				b3b6.setText(" ");
-				b3b6.setEnabled(false);
-			}
-			if (b3b7.isEnabled()) {
-				b3b7.setText(" ");
-				b3b7.setEnabled(false);
-			}
-			if (b3b8.isEnabled()) {
-				b3b8.setText(" ");
-				b3b8.setEnabled(false);
-			}
-			if (b3b9.isEnabled()) {
-				b3b9.setText(" ");
-				b3b9.setEnabled(false);
-			}
-			b4b1.setBackground(winner);
-			b4b2.setBackground(winner);
-			b4b3.setBackground(winner);
-			b4b4.setBackground(winner);
-			b4b5.setBackground(winner);
-			b4b6.setBackground(winner);
-			b4b7.setBackground(winner);
-			b4b8.setBackground(winner);
-			b4b9.setBackground(winner);
-			if (b4b1.isEnabled()) {
-				b4b1.setText(" ");
-				b4b1.setEnabled(false);
-			}
-			if (b4b2.isEnabled()) {
-				b4b2.setText(" ");
-				b4b2.setEnabled(false);
-			}
-			if (b4b3.isEnabled()) {
-				b4b3.setText(" ");
-				b4b3.setEnabled(false);
-			}
-			if (b4b4.isEnabled()) {
-				b4b4.setText(" ");
-				b4b4.setEnabled(false);
-			}
-			if (b4b5.isEnabled()) {
-				b4b5.setText(" ");
-				b4b5.setEnabled(false);
-			}
-			if (b4b6.isEnabled()) {
-				b4b6.setText(" ");
-				b4b6.setEnabled(false);
-			}
-			if (b4b7.isEnabled()) {
-				b4b7.setText(" ");
-				b4b7.setEnabled(false);
-			}
-			if (b4b8.isEnabled()) {
-				b4b8.setText(" ");
-				b4b8.setEnabled(false);
-			}
-			if (b4b9.isEnabled()) {
-				b4b9.setText(" ");
-				b4b9.setEnabled(false);
-			}
-			b5b1.setBackground(winner);
-			b5b2.setBackground(winner);
-			b5b3.setBackground(winner);
-			b5b4.setBackground(winner);
-			b5b5.setBackground(winner);
-			b5b6.setBackground(winner);
-			b5b7.setBackground(winner);
-			b5b8.setBackground(winner);
-			b5b9.setBackground(winner);
-			if (b5b1.isEnabled()) {
-				b5b1.setText(" ");
-				b5b1.setEnabled(false);
-			}
-			if (b5b2.isEnabled()) {
-				b5b2.setText(" ");
-				b5b2.setEnabled(false);
-			}
-			if (b5b3.isEnabled()) {
-				b5b3.setText(" ");
-				b5b3.setEnabled(false);
-			}
-			if (b5b4.isEnabled()) {
-				b5b4.setText(" ");
-				b5b4.setEnabled(false);
-			}
-			if (b5b5.isEnabled()) {
-				b5b5.setText(" ");
-				b5b5.setEnabled(false);
-			}
-			if (b5b6.isEnabled()) {
-				b5b6.setText(" ");
-				b5b6.setEnabled(false);
-			}
-			if (b5b7.isEnabled()) {
-				b5b7.setText(" ");
-				b5b7.setEnabled(false);
-			}
-			if (b5b8.isEnabled()) {
-				b5b8.setText(" ");
-				b5b8.setEnabled(false);
-			}
-			if (b5b9.isEnabled()) {
-				b5b9.setText(" ");
-				b5b9.setEnabled(false);
-			}
-			b6b1.setBackground(winner);
-			b6b2.setBackground(winner);
-			b6b3.setBackground(winner);
-			b6b4.setBackground(winner);
-			b6b5.setBackground(winner);
-			b6b6.setBackground(winner);
-			b6b7.setBackground(winner);
-			b6b8.setBackground(winner);
-			b6b9.setBackground(winner);
-			if (b6b1.isEnabled()) {
-				b6b1.setText(" ");
-				b6b1.setEnabled(false);
-			}
-			if (b6b2.isEnabled()) {
-				b6b2.setText(" ");
-				b6b2.setEnabled(false);
-			}
-			if (b6b3.isEnabled()) {
-				b6b3.setText(" ");
-				b6b3.setEnabled(false);
-			}
-			if (b6b4.isEnabled()) {
-				b6b4.setText(" ");
-				b6b4.setEnabled(false);
-			}
-			if (b6b5.isEnabled()) {
-				b6b5.setText(" ");
-				b6b5.setEnabled(false);
-			}
-			if (b6b6.isEnabled()) {
-				b6b6.setText(" ");
-				b6b6.setEnabled(false);
-			}
-			if (b6b7.isEnabled()) {
-				b6b7.setText(" ");
-				b6b7.setEnabled(false);
-			}
-			if (b6b8.isEnabled()) {
-				b6b8.setText(" ");
-				b6b8.setEnabled(false);
-			}
-			if (b6b9.isEnabled()) {
-				b6b9.setText(" ");
-				b6b9.setEnabled(false);
-			}
-			b7b1.setBackground(winner);
-			b7b2.setBackground(winner);
-			b7b3.setBackground(winner);
-			b7b4.setBackground(winner);
-			b7b5.setBackground(winner);
-			b7b6.setBackground(winner);
-			b7b7.setBackground(winner);
-			b7b8.setBackground(winner);
-			b7b9.setBackground(winner);
-			if (b7b1.isEnabled()) {
-				b7b1.setText(" ");
-				b7b1.setEnabled(false);
-			}
-			if (b7b2.isEnabled()) {
-				b7b2.setText(" ");
-				b7b2.setEnabled(false);
-			}
-			if (b7b3.isEnabled()) {
-				b7b3.setText(" ");
-				b7b3.setEnabled(false);
-			}
-			if (b7b4.isEnabled()) {
-				b7b4.setText(" ");
-				b7b4.setEnabled(false);
-			}
-			if (b7b5.isEnabled()) {
-				b7b5.setText(" ");
-				b7b5.setEnabled(false);
-			}
-			if (b7b6.isEnabled()) {
-				b7b6.setText(" ");
-				b7b6.setEnabled(false);
-			}
-			if (b7b7.isEnabled()) {
-				b7b7.setText(" ");
-				b7b7.setEnabled(false);
-			}
-			if (b7b8.isEnabled()) {
-				b7b8.setText(" ");
-				b7b8.setEnabled(false);
-			}
-			if (b7b9.isEnabled()) {
-				b7b9.setText(" ");
-				b7b9.setEnabled(false);
-			}
-			b8b1.setBackground(winner);
-			b8b2.setBackground(winner);
-			b8b3.setBackground(winner);
-			b8b4.setBackground(winner);
-			b8b5.setBackground(winner);
-			b8b6.setBackground(winner);
-			b8b7.setBackground(winner);
-			b8b8.setBackground(winner);
-			b8b9.setBackground(winner);
-			if (b8b1.isEnabled()) {
-				b8b1.setText(" ");
-				b8b1.setEnabled(false);
-			}
-			if (b8b2.isEnabled()) {
-				b8b2.setText(" ");
-				b8b2.setEnabled(false);
-			}
-			if (b8b3.isEnabled()) {
-				b8b3.setText(" ");
-				b8b3.setEnabled(false);
-			}
-			if (b8b4.isEnabled()) {
-				b8b4.setText(" ");
-				b8b4.setEnabled(false);
-			}
-			if (b8b5.isEnabled()) {
-				b8b5.setText(" ");
-				b8b5.setEnabled(false);
-			}
-			if (b8b6.isEnabled()) {
-				b8b6.setText(" ");
-				b8b6.setEnabled(false);
-			}
-			if (b8b7.isEnabled()) {
-				b8b7.setText(" ");
-				b8b7.setEnabled(false);
-			}
-			if (b8b8.isEnabled()) {
-				b8b8.setText(" ");
-				b8b8.setEnabled(false);
-			}
-			if (b8b9.isEnabled()) {
-				b8b9.setText(" ");
-				b8b9.setEnabled(false);
-			}
-			b9b1.setBackground(winner);
-			b9b2.setBackground(winner);
-			b9b3.setBackground(winner);
-			b9b4.setBackground(winner);
-			b9b5.setBackground(winner);
-			b9b6.setBackground(winner);
-			b9b7.setBackground(winner);
-			b9b8.setBackground(winner);
-			b9b9.setBackground(winner);
-			if (b9b1.isEnabled()) {
-				b9b1.setText(" ");
-				b9b1.setEnabled(false);
-			}
-			if (b9b2.isEnabled()) {
-				b9b2.setText(" ");
-				b9b2.setEnabled(false);
-			}
-			if (b9b3.isEnabled()) {
-				b9b3.setText(" ");
-				b9b3.setEnabled(false);
-			}
-			if (b9b4.isEnabled()) {
-				b9b4.setText(" ");
-				b9b4.setEnabled(false);
-			}
-			if (b9b5.isEnabled()) {
-				b9b5.setText(" ");
-				b9b5.setEnabled(false);
-			}
-			if (b9b6.isEnabled()) {
-				b9b6.setText(" ");
-				b9b6.setEnabled(false);
-			}
-			if (b9b7.isEnabled()) {
-				b9b7.setText(" ");
-				b9b7.setEnabled(false);
-			}
-			if (b9b8.isEnabled()) {
-				b9b8.setText(" ");
-				b9b8.setEnabled(false);
-			}
-			if (b9b9.isEnabled()) {
-				b9b9.setText(" ");
-				b9b9.setEnabled(false);
-			}
+			for(int i=0; i<9; i++) {
+				for (int j=0; j<9; j++) {
+					boards[i][j].setColor(winner);
+					if (boards[i][j].getEnabled() == true) {
+						boards[i][j].changeText(" ");
+						boards[i][j].changeState(false);
+					}
+				}
+			}
+			gameWon = true;
+		}
+	}
+	public void CPU() {
+		System.out.println("CPU :: initializing...");
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		System.out.println("CPU :: shuffling...");
+		shuffle(buttons);
+		
+		for (int i=0; i<81; i++) {
+			
+			System.out.println("CPU :: disabling button...");
+			buttons[i].changeState(false);
+			check(true);
+			if (gameWon) {
+				break;
+			}
+			
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println("CPU :: finished.");
+	}
+	public void shuffle(Object[] array) {
+		
+		int length = array.length;
+		
+		for (int i=0; i<length; i++) {
+			int s = i + (int)(Math.random() * (length - i));
+			
+			Object temp = array[s];
+			array[s] = array[i];
+			array[i] = temp;
 		}
 	}
 }
